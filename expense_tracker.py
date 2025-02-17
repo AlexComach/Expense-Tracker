@@ -1,6 +1,9 @@
 from tabulate import tabulate
 from connect_to_db import get_db_connection
+from datetime import datetime
 
+now = datetime.now()
+formatted_date = now.strftime("%d/%m/%Y")
 user_list = []
 user_list_duplicate = []
 tracker = {}
@@ -12,6 +15,7 @@ def log_expense(user_name, amount, category, description):
         current_expense["category"] = category
         current_expense["description"] = description
         current_expense["amount"] = amount
+        current_expense["date"] = formatted_date
     
         return current_expense
     
@@ -45,15 +49,17 @@ def view_list(username, list_to_view):
 def store_data(user_name, expense_data):
     try:
         mydb, mycursor = get_db_connection()
-        tracker[user_name] = expense_data
+        
+        tracker[user_name] = expense_data 
         user_list.append(expense_data)  
         user_list_duplicate.append(expense_data)
-        sql = "INSERT INTO expenses (user_name, category, description, amount) VALUES (%s, %s, %s, %s)"
+        
+        sql = "INSERT INTO expenses (user_name, category, description, amount, date) VALUES (%s, %s, %s, %s, %s)"
         
         values = []
         
-        for item in user_list:
-            values.append((item["user_name"], item["category"], item["description"], item["amount"]))
+        values.append((expense_data["user_name"], expense_data["category"], expense_data["description"], expense_data["amount"], expense_data["date"]))
+        
         mycursor.executemany(sql, values)
         mydb.commit()
         mydb.close()
@@ -71,19 +77,21 @@ def breakdown(username, wage):
         category_sums = {}  
         current_category = user_list_duplicate[0]["category"]
 
+
         for entry in user_list_duplicate:
-            if entry["category"] == current_category:
-                amount.append(entry["amount"])
-            else:
-                category_sums[current_category] = sum(amount)
-                amount = []
-                current_category = entry["category"]
-                amount.append(entry["amount"])  
+            if entry["user_name"] == username:
+                if entry["category"] == current_category:
+                    amount.append(entry["amount"])
+                else:
+                    category_sums[current_category] = sum(amount)
+                    amount = []
+                    current_category = entry["category"]
+                    amount.append(entry["amount"])  
 
         
-        category_sums[current_category] = sum(amount)
+                category_sums[current_category] = sum(amount)
 
-        category_sums["total"] = sum(category_sums.values())
+                category_sums["total"] = sum(category_sums.values())
 
         print(f"\n{username}, your breakdown is as follows:\n")
         
@@ -102,3 +110,8 @@ def breakdown(username, wage):
 
 
 
+
+store_data("Alex", log_expense("Alex", 150, "transport", "car"))
+store_data("Alex", log_expense("Alex", 150, "transport", "car"))
+store_data("Alex", log_expense("Alex", 150, "transport", "car"))
+store_data("Bill", log_expense("Bill", 150, "transport", "car"))
