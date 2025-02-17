@@ -1,5 +1,5 @@
 from tabulate import tabulate
-
+from connect_to_db import get_db_connection
 
 user_list = []
 user_list_duplicate = []
@@ -44,10 +44,20 @@ def view_list(username, list_to_view):
 
 def store_data(user_name, expense_data):
     try:
+        mydb, mycursor = get_db_connection()
         tracker[user_name] = expense_data
         user_list.append(expense_data)  
         user_list_duplicate.append(expense_data)
-
+        sql = "INSERT INTO expenses (user_name, category, description, amount) VALUES (%s, %s, %s, %s)"
+        
+        values = []
+        
+        for item in user_list:
+            values.append((item["user_name"], item["category"], item["description"], item["amount"]))
+        mycursor.executemany(sql, values)
+        mydb.commit()
+        mydb.close()
+        
     except Exception as e:
         return f"Unexpected error: {e}"
 
