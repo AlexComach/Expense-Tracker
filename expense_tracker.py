@@ -59,6 +59,8 @@ def store_data(user_name, expense_data):
         values = []
         
         values.append((expense_data["user_name"], expense_data["category"], expense_data["description"], expense_data["amount"], expense_data["date"]))
+
+        print(values)
         
         mycursor.executemany(sql, values)
         mydb.commit()
@@ -88,10 +90,13 @@ def breakdown(username, wage):
                     current_category = entry["category"]
                     amount.append(entry["amount"])  
 
+                
         
-                category_sums[current_category] = sum(amount)
+        category_sums[current_category] = sum(amount)
 
-                category_sums["total"] = sum(category_sums.values())
+        print(category_sums)        
+
+        category_sums["total"] = sum(category_sums.values())
 
         print(f"\n{username}, your breakdown is as follows:\n")
         
@@ -112,6 +117,7 @@ def breakdown(username, wage):
 
 
 store_data("Alex", log_expense("Alex", 150, "transport", "car"))
-store_data("Alex", log_expense("Alex", 150, "transport", "car"))
-store_data("Alex", log_expense("Alex", 150, "transport", "car"))
-store_data("Bill", log_expense("Bill", 150, "transport", "car"))
+store_data("Bill", log_expense("Bill", 150, "transport", "bike"))
+
+
+# breakdown("Alex", 2000)
