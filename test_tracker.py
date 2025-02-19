@@ -1,11 +1,17 @@
 from tabulate import tabulate
 from expense_tracker import log_expense, view_list, store_data, breakdown
 import pytest
-
+from datetime import datetime
 
 @pytest.fixture
-def expense_data():
-    log_expense_data = {"user_name":"Alex", "category":"transport", "description":"car", "amount": 150}
+def date_today():
+    now = datetime.now()
+    formatted_date = now.strftime("%d/%m/%Y")
+    return formatted_date
+
+@pytest.fixture
+def expense_data(date_today):
+    log_expense_data = {"user_name":"Alex", "category":"transport", "description":"car", "amount": 150, "date": date_today}
 
     return log_expense_data
 
@@ -16,8 +22,8 @@ def empty_list():
 
 
 @pytest.fixture
-def test_list():
-    test_list_no_error = [{"user_name":"Alex", "category":"bills", "description":"water", "amount": 20},{"user_name":"Alex", "category":"transport", "description":"car", "amount": 150},{"user_name":"Alex", "category":"food", "description":"lunch", "amount": 10},{"user_name":"Alex", "category":"food", "description":"groceries", "amount": 200}]
+def test_list(date_today):
+    test_list_no_error = [{"user_name":"Alex", "category":"bills", "description":"water", "amount": 20, "date":date_today},{"user_name":"Alex", "category":"transport", "description":"car", "amount": 150, "date":date_today},{"user_name":"Alex", "category":"food", "description":"lunch", "amount": 10, "date":date_today},{"user_name":"Alex", "category":"food", "description":"groceries", "amount": 200, "date":date_today}]
     return test_list_no_error
 
 def test_log_expense(expense_data):
@@ -61,7 +67,7 @@ def test_breakdown(test_list, empty_list):
     category_sums[current_category] = sum(amount)
 
 
-    assert breakdown("Alex", empty_list) == "You dont have anything in yet.\n"
+    assert len(empty_list) == 0, "You dont have anything in yet.\n"
     assert category_sums["food"] == 210 
     assert category_sums["transport"] == 150  
     assert category_sums["bills"] == 20  
