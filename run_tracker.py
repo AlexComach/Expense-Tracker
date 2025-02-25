@@ -16,7 +16,9 @@ def main():
                 log_expense_description = str(input("Input expense description: "))
                 print("\n")
 
-                view_list(user, log_expense(user, log_expense_amount, log_expense_category, log_expense_description))
+                current_expense = log_expense(user, log_expense_amount, log_expense_category, log_expense_description)
+
+                view_list(user, current_expense)
                 
                 store_data_confirmation = input("Would you like to store this data?\ny for yes\nn for no\n")
 
@@ -47,8 +49,6 @@ def main():
             elif option.lower() == "b":
                 wage = int(input("Enter your current monthly wage: "))
                 breakdown(user, wage)
-
-            
 
             elif option.lower() == "c":
                 user = str(input("Choose a name to change to: "))

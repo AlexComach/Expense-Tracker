@@ -22,26 +22,27 @@ def log_expense(user_name, amount, category, description):
     except Exception as e:
         return f"Unexpected Error: {e}"
 
-
 def view_list(username, list_to_view):
     try:
-        if len(list_to_view) == 0:
-            return "You dont have anything in yet.\n"
-            
+        if not list_to_view:
+            return "You don't have anything in yet.\n"
 
         if isinstance(list_to_view, dict):
             list_to_view = [list_to_view]
 
+        filtered_list = []
+        
         for entry in list_to_view:
             if entry["user_name"] == username:
-                list_table = tabulate(list_to_view, headers="keys", tablefmt="simple_outline")
-            else:
-                return "user error"
+                filtered_list.append(entry)
+
+        if not filtered_list:
+            return f"No records found for user: {username}"
+
+        list_table = tabulate(filtered_list, headers="keys", tablefmt="simple_outline")
         print(list_table)
-        return(list_table)
-            
-        
-    
+        return list_table
+
     except Exception as e:
         return f"Unexpected error: {e}"
 
@@ -78,29 +79,33 @@ def breakdown(username, wage):
         amount = []
         category_sums = {}  
         current_category = user_list_duplicate[0]["category"]
-
+        user_expenses = []
 
         for entry in user_list_duplicate:
             if entry["user_name"] == username:
-                if entry["category"] == current_category:
-                    amount.append(entry["amount"])
-                else:
-                    category_sums[current_category] = sum(amount)
-                    amount = []
-                    current_category = entry["category"]
-                    amount.append(entry["amount"])  
+                user_expenses.append(entry)
 
-                
+        if len(user_expenses) == 0:
+            return f"{username} has no recorded expenses.\n"
+
+        for current_user_values in user_expenses:
+            if current_user_values["category"] == current_category:
+                amount.append(current_user_values["amount"])
+            else:
+                category_sums[current_category] = sum(amount)
+                current_category = current_user_values["category"]
+                amount.append(current_user_values["amount"])  
         
         category_sums[current_category] = sum(amount)
-
-        # print(category_sums)        
 
         category_sums["total"] = sum(category_sums.values())
 
         print(f"\n{username}, your breakdown is as follows:\n")
         
-        table = [[key, value] for key, value in category_sums.items()]
+        table = []
+        for key, value in category_sums.items():
+            table.append([key, value])
+
         print(tabulate(table, headers=["Expenses", "Cost"], tablefmt="presto"))
         print("\n")
         
@@ -117,7 +122,7 @@ def breakdown(username, wage):
 
 
 # store_data("Alex", log_expense("Alex", 150, "transport", "car"))
+# store_data("Alex", log_expense("Alex", 150, "food", "groceries"))
 # store_data("Bill", log_expense("Bill", 150, "transport", "bike"))
-
-
-# breakdown("Alex", 2000)
+# print(user_list)
+# breakdown("Bill", 2000)
