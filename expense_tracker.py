@@ -36,7 +36,7 @@ def view_list(username, list_to_view):
             if entry["user_name"] == username:
                 filtered_list.append(entry)
 
-        if not filtered_list:
+        if len(filtered_list) == 0:
             return f"No records found for user: {username}"
 
         list_table = tabulate(filtered_list, headers="keys", tablefmt="simple_outline")
@@ -75,11 +75,10 @@ def breakdown(username, wage):
     try:
         if len(user_list) == 0:
             return "You dont have anything in yet.\n"
-            
-        amount = []
-        category_sums = {}  
-        current_category = user_list_duplicate[0]["category"]
+        
         user_expenses = []
+        category_sums = []
+        final_breakdown = {}
 
         for entry in user_list_duplicate:
             if entry["user_name"] == username:
@@ -87,33 +86,33 @@ def breakdown(username, wage):
 
         if len(user_expenses) == 0:
             return f"{username} has no recorded expenses.\n"
-
-        for current_user_values in user_expenses:
-            if current_user_values["category"] == current_category:
-                amount.append(current_user_values["amount"])
-            else:
-                category_sums[current_category] = sum(amount)
-                current_category = current_user_values["category"]
-                amount.append(current_user_values["amount"])  
         
-        category_sums[current_category] = sum(amount)
+        for current_user_values in user_expenses:
+            category_sums.append({current_user_values["category"] : current_user_values["amount"]})
 
-        category_sums["total"] = sum(category_sums.values())
-
+        for category_value in category_sums:
+            for key, value in category_value.items():
+                if key in final_breakdown:
+                    final_breakdown[key] += value  
+                else:
+                    final_breakdown[key] = value 
+        
+        final_breakdown["total"] = sum(final_breakdown.values())
+    
         print(f"\n{username}, your breakdown is as follows:\n")
         
         table = []
-        for key, value in category_sums.items():
+        for key, value in final_breakdown.items():
             table.append([key, value])
 
         print(tabulate(table, headers=["Expenses", "Cost"], tablefmt="presto"))
         print("\n")
         
-        for key, value in category_sums.items():
+        for key, value in final_breakdown.items():
             if key != "total":
-                print(f"{key} has accounted for {round(value/wage*100, 1)}% of your wage and {round(value/category_sums['total']*100, 1)}% of your total spendings this month.")
+                print(f"{key} has accounted for {round(value/wage*100, 1)}% of your wage and {round(value/final_breakdown['total']*100, 1)}% of your total spendings this month.")
             
-        print(f"\nYou have {wage - category_sums['total']} left.")
+        print(f"\nYou have {wage - final_breakdown['total']} left.")
 
     except Exception as e:
         print(f"Unexpected error: {e}")
