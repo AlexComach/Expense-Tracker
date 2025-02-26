@@ -20,5 +20,5 @@ understand of how dictionaries can be updated, deleted from and using the conten
 I would like make the run_tracker interactive with a GUI, and also explore what I can do with sql.connector. Maybe create an admin
 account that can access, view, update and delete logs that have been stored in the database.
 
-**Video Demo:** (https://youtu.be/lb4RyU40ZyU?si=0X59tS1HKj74VH7R)
+**Video Demo:** https://youtu.be/lb4RyU40ZyU?si=0X59tS1HKj74VH7R
 
